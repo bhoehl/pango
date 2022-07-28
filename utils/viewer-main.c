@@ -37,6 +37,8 @@
 #include "viewer.h"
 #include "viewer-render.h"
 
+#define STDOUT_FILENO 1
+
 int
 main (int    argc,
       char **argv)
