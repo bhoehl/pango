@@ -283,14 +283,14 @@ output_body (PangoLayout    *layout,
         x = -logical_rect.x;
       }
       if (logical_rect.y < 0) {
-	  y = -logical_rect.y;
+	  y = y -logical_rect.y;
       }
 
       if (render_cb)
 	(*render_cb) (layout, x, y+*height, cb_context, cb_data);
 
       *width = MAX (*width, 
-		    MAX (logical_rect.x + logical_rect.width,
+		    MAX (MAX(logical_rect.x,0) + logical_rect.width,
 			 PANGO_PIXELS (pango_layout_get_width (layout))));
       *height +=    MAX (MAX(logical_rect.y,0) + logical_rect.height,
 			 PANGO_PIXELS (pango_layout_get_height (layout)));
