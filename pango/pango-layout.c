@@ -3152,6 +3152,7 @@ pango_layout_get_pixel_extents (PangoLayout    *layout,
       logical_rect->width = ink_rect->width;
     }
     if (ink_rect->height > logical_rect->height) {
+      logical_rect->y = ink_rect->y;
       logical_rect->height = ink_rect->height;
     }
   }

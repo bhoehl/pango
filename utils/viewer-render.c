@@ -267,7 +267,7 @@ output_body (PangoLayout    *layout,
 
   *width = 0;
   *height = 0;
-
+  
   for (size = start_size; size <= end_size; size += increment)
     {
       if (size > 0)
@@ -282,14 +282,17 @@ output_body (PangoLayout    *layout,
       if (logical_rect.x < 0) {
         x = -logical_rect.x;
       }
+      if (logical_rect.y < 0) {
+	  y = y -logical_rect.y;
+      }
 
       if (render_cb)
 	(*render_cb) (layout, x, y+*height, cb_context, cb_data);
 
       *width = MAX (*width, 
-		    MAX (logical_rect.x + logical_rect.width,
+		    MAX (MAX(logical_rect.x,0) + logical_rect.width,
 			 PANGO_PIXELS (pango_layout_get_width (layout))));
-      *height +=    MAX (logical_rect.y + logical_rect.height,
+      *height +=    MAX (MAX(logical_rect.y,0) + logical_rect.height,
 			 PANGO_PIXELS (pango_layout_get_height (layout)));
     }
 }
