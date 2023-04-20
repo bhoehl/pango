@@ -31,10 +31,13 @@
 
 #ifdef G_OS_UNIX
 #include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 #include "viewer.h"
 #include "viewer-render.h"
+
+#define STDOUT_FILENO 1
 
 int
 main (int    argc,
@@ -76,10 +79,14 @@ main (int    argc,
 
 	  if (view->write_suffix && g_str_has_suffix (opt_output, view->write_suffix))
 	    {
+	      if (opt_output[0] == '-') {
+		stream = fdopen(STDOUT_FILENO, "wb");
+	      } else {
 	      stream = g_fopen (opt_output, "wb");
 	      if (!stream)
 		fail ("Cannot open output file %s: %s\n",
 		      opt_output, g_strerror (errno));
+	    }
 	    }
 	  else
 	    {

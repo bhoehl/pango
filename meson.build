@@ -4,6 +4,7 @@ project('pango', 'c', 'cpp',
         default_options: [
           'buildtype=debugoptimized',
           'warning_level=1',
+          'default_library=static',
           # We only need c99, but glib needs GNU-specific features
           # https://github.com/mesonbuild/meson/issues/2289
           'c_std=gnu99',
@@ -238,20 +239,20 @@ mathlib_dep = cc.find_library('m', required: false)
 pango_deps += mathlib_dep
 
 # gobject
-glib_dep = dependency('glib-2.0', version: glib_req_version,
+glib_dep = dependency('glib-2.0', version: glib_req_version, static: true,
                       fallback: ['glib', 'libglib_dep'])
-gobject_dep = dependency('gobject-2.0', version: glib_req_version,
+gobject_dep = dependency('gobject-2.0', version: glib_req_version, static: true,
                          fallback: ['glib', 'libgobject_dep'])
-gio_dep = dependency('gio-2.0', version: glib_req_version,
+gio_dep = dependency('gio-2.0', version: glib_req_version, static: true,
                          fallback: ['glib', 'libgio_dep'])
 pango_deps += [glib_dep, gobject_dep, gio_dep]
 
-fribidi_dep = dependency('fribidi', version: fribidi_req_version,
+fribidi_dep = dependency('fribidi', version: fribidi_req_version, static: true,
                          fallback: ['fribidi', 'libfribidi_dep'],
                          default_options: ['docs=false'])
 pango_deps += fribidi_dep
 
-thai_dep = dependency('libthai', version: libthai_req_version, required: get_option('libthai'))
+thai_dep = dependency('libthai', version: libthai_req_version, static: true, required: get_option('libthai'))
 if thai_dep.found()
   pango_conf.set('HAVE_LIBTHAI', 1)
   pango_deps += thai_dep
@@ -273,6 +274,7 @@ fontconfig_pc=''
 
 harfbuzz_dep = dependency('harfbuzz',
                           version: harfbuzz_req_version,
+                          static: true,
                           required: true,
                           fallback: ['harfbuzz', 'libharfbuzz_dep'],
                           default_options: ['coretext=enabled'])
@@ -288,7 +290,7 @@ if not fontconfig_option.disabled() or fontconfig_required
   fontconfig_option = false
 endif
 
-fontconfig_dep = dependency('fontconfig', version: fontconfig_req_version, required: fontconfig_option)
+fontconfig_dep = dependency('fontconfig', version: fontconfig_req_version, static: true, required: fontconfig_option)
 if fontconfig_dep.found()
   fontconfig_pc = 'fontconfig'
 else
@@ -303,7 +305,7 @@ endif
 # user option on platforms that always require fontconfig.
 fontconfig_option = fontconfig_required ? true : get_option('fontconfig')
 if not fontconfig_dep.found()
-  fontconfig_dep = dependency('fontconfig', version: fontconfig_req_version,
+  fontconfig_dep = dependency('fontconfig', version: fontconfig_req_version, static: true,
                               fallback: ['fontconfig', 'fontconfig_dep'],
                               required: fontconfig_option)
 endif
@@ -342,6 +344,7 @@ freetype_package_name = cc.get_argument_syntax() == 'msvc' ? \
                         'freetype' : 'freetype2'
 
 freetype_dep = dependency(freetype_package_name,
+                          static: true,
                           required: freetype_option,
                           fallback: ['freetype2', 'freetype_dep'])
 
@@ -357,10 +360,10 @@ if build_pangoft2
 endif
 
 build_pangoxft = false
-xft_dep = dependency('xft', version: xft_req_version, required: get_option('xft'))
+xft_dep = dependency('xft', version: xft_req_version, static: true, required: get_option('xft'))
 if xft_dep.found() and fontconfig_dep.found() and freetype_dep.found()
   pango_conf.set('HAVE_XFT', 1)
-  pango_deps += dependency('xrender', required: false)
+  pango_deps += dependency('xrender', static: true, required: false)
   pango_deps += xft_dep
   build_pangoxft = true
 endif
@@ -389,7 +392,7 @@ if not cairo_option.disabled()
 endif
 
 cairo_found_type = ''
-cairo_dep = dependency('cairo', version: cairo_req_version, required: cairo_option)
+cairo_dep = dependency('cairo', version: cairo_req_version, static: true, required: cairo_option)
 
 if cairo_dep.found()
   cairo_found_type = cairo_dep.type_name()
@@ -403,7 +406,7 @@ endif
 # Remove once Meson gains capability to declare dependencies
 # in a declarative way
 if not cairo_dep.found()
-  cairo_dep = dependency('cairo', version: cairo_req_version,
+  cairo_dep = dependency('cairo', version: cairo_req_version, static: true,
                          fallback: ['cairo', 'libcairo_dep'], required: get_option('cairo'))
   cairo_found_type = cairo_dep.type_name()
 endif
@@ -431,9 +434,9 @@ if ['pkgconfig', 'internal'].contains(cairo_found_type)
 
   foreach b: cairo_font_backends
     if cairo_found_type == 'pkgconfig'
-      dep = dependency(b[0], version: b[1], required: false)
+      dep = dependency(b[0], version: b[1], static: true, required: false)
     else
-      dep = dependency('', required: false)
+      dep = dependency('', static: true, required: false)
       foreach f: cairo_features
         if f['name'] == b[0]
           dep = cairo_dep
@@ -471,9 +474,9 @@ if ['pkgconfig', 'internal'].contains(cairo_found_type)
 
   foreach b: cairo_surface_backends
     if cairo_found_type == 'pkgconfig'
-      dep = dependency(b[0], version: b[1], required: false)
+      dep = dependency(b[0], version: b[1], static: true, required: false)
     else
-      dep = dependency('', required: false)
+      dep = dependency('', static: true, required: false)
       foreach f: cairo_features
         if f['name'] == b[0]
           dep = cairo_dep
@@ -585,6 +588,7 @@ pango_deps += libsysprof_capture_dep
 
 gidocgen_dep = dependency('gi-docgen', version: '>= 2021.1',
                           fallback: ['gi-docgen', 'dummy_dep'],
+                          static: true,
                           required: get_option('gtk_doc'))
 
 gnome = import('gnome')
